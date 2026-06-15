@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>伊朗战争实时态势感知大屏 Demo</title>
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<div class="screen-shell">
+    <header class="topbar">
+        <div>
+            <h1>伊朗战争多源数据融合实时感知</h1>
+        </div>
+        <div class="status-panel">
+            <span class="pulse"></span>
+            <span>实时采集中</span>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <section class="map-card panel">
+            <div class="panel-title">
+                <span class="panel-heading">战区事件地图</span>
+                <form id="searchForm" class="search-bar">
+                    <div class="search-input-wrap">
+                        <input id="searchInput" type="search" maxlength="120" autocomplete="off"
+                               placeholder="输入关键词查询" />
+                    </div>
+                    <button type="submit" id="searchButton">查询</button>
+                    <button type="button" id="clearSearchButton" class="ghost-button" hidden>清空</button>
+                </form>
+            </div>
+            <div id="searchStatus" class="search-status" hidden></div>
+            <div id="map" class="map-container">
+                <div class="map-placeholder">
+                    <strong>高德地图加载区域</strong>
+                    <span>请在 application.yml 配置 app.amap.js-api-key</span>
+                </div>
+            </div>
+        </section>
+
+        <aside class="right-column">
+            <section class="panel metric-panel">
+                <div class="metric-item">
+                    <span class="metric-value" id="eventCount">0</span>
+                    <span class="metric-label">地图事件</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-value">30s</span>
+                    <span class="metric-label">采集周期</span>
+                </div>
+            </section>
+
+            <section class="panel news-panel">
+                <div class="panel-title">
+                    <span>最新新闻</span>
+                    <small>Latest 20</small>
+                </div>
+                <div id="newsList" class="news-list"></div>
+            </section>
+        </aside>
+    </main>
+</div>
+
+<div id="detailModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+        <button id="closeModal" class="modal-close">×</button>
+        <h2 id="detailTitle">新闻标题</h2>
+        <div class="detail-meta">
+            <span id="detailSource">Source</span>
+            <span id="detailTime">Time</span>
+        </div>
+        <p id="detailSummary"></p>
+        <a id="detailLink" href="#" target="_blank" rel="noreferrer">查看原文</a>
+        <div class="entity-box">
+            <h3>涉及实体</h3>
+            <div id="detailEntities" class="entity-tags"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

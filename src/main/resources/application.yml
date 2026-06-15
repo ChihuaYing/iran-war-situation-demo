@@ -1,0 +1,80 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: iran-war-situation-demo
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+app:
+  collector:
+    enabled: true
+    fixed-delay-ms: 30000
+    worker-threads: 4
+    keywords:
+      - 伊朗
+      - 以色列
+      - 德黑兰
+      - 内塔尼亚胡
+      - 哈梅内伊
+      - 革命卫队
+      - 伊斯兰革命卫队
+      - 导弹
+      - 无人机
+      - 空袭
+      - 袭击
+      - 打击
+      - 爆炸
+      - 核设施
+      - 核计划
+      - 冲突
+      - 战争
+      - 军事
+      - Iran
+      - Israel
+      - Tehran
+      - Khamenei
+      - Netanyahu
+      - IRGC
+      - Missile
+      - Strike
+      - Attack
+      - Drone
+      - Nuclear
+      - Explosion
+      - Conflict
+      - Military
+    rss-sources:
+      - name: 中国新闻网-国际
+        url: https://www.chinanews.com.cn/rss/world.xml
+
+#      - name: RSSHub-环球网-国际
+#        url: https://rsshub.rssforever.com/huanqiu/news/world?filter=伊朗|以色列|中东|真主党|胡塞|加沙|德黑兰|黎巴嫩
+#      - name: RSSHub-参考消息-世界
+#        url: https://rsshub.rssforever.com/cankaoxiaoxi/news/world_news?filter=伊朗|以色列|中东|战争|空袭|导弹|核设施
+#      - name: RSSHub-观察者网-头条
+#        url: https://rsshub.rssforever.com/guancha/headline?filter=伊朗|以色列|中东|内塔尼亚胡|佩泽希齐扬|哈马斯
+#      - name: RSSHub-新浪军事
+#        url: https://rsshub.rssforever.com/sina/milnews?filter=伊朗|以色列|中东|防空|战机|导弹
+  iginx:
+    host: 127.0.0.1
+    port: 6888
+    username: root
+    password: root
+    news-path-prefix: sys.news
+  neo4j:
+    uri: bolt://127.0.0.1:7687
+    username: neo4j
+    password: password
+  llm:
+    enabled: true
+    base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    api-key: ${LLM_API_KEY:}
+    model: ${LLM_MODEL:qwen3.6-35b-a3b}
+    timeout-seconds: 30
+  amap:
+    web-api-key: 
+    js-api-key: 
+    security-js-code: 
