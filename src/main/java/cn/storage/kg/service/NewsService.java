@@ -4,6 +4,7 @@ import cn.storage.kg.dao.IginxDao;
 import cn.storage.kg.dao.LlmDao;
 import cn.storage.kg.dao.Neo4jDao;
 import cn.storage.kg.model.GeoPoint;
+import cn.storage.kg.model.ImageAsset;
 import cn.storage.kg.model.LlmNewsDecision;
 import cn.storage.kg.model.NewsEvent;
 import cn.storage.kg.model.NewsSearchResult;
@@ -108,6 +109,18 @@ public class NewsService {
         String normalized = hasText(keyword) ? keyword.trim() : "";
         List<NewsEvent> events = neo4jDao.searchMapEvents(normalized, limit);
         return new NewsSearchResult(normalized, neo4jDao.mapSearchCypher(), events);
+    }
+
+    public List<ImageAsset> imageAssets() {
+        return iginxDao.findImageAssets();
+    }
+
+    public Optional<byte[]> imageContent(long key) {
+        return iginxDao.findImageContent(key);
+    }
+
+    public Optional<byte[]> imageThumb(long key) {
+        return iginxDao.findImageThumb(key);
     }
 
     private NewsEvent toNewsEvent(RawNews rawNews, String guid, LlmNewsDecision assessment) {

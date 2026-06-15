@@ -1,12 +1,13 @@
 const IRAN_CENTER = [53.6880, 32.4279];
 const COMPACT_MARKER_ZOOM = 5.8;
 const FOCUS_MARKER_ZOOM = 6.8;
-
 let map;
 let infoWindow;
 let markers = new Map();
+let imageMarkers = new Map();
 let events = [];
 let allEvents = [];
+let imageAssets = [];
 let groups = new Map();
 let activeGroupKey = null;
 let activeGroupIndex = 0;
@@ -21,6 +22,10 @@ const searchInput = document.querySelector('#searchInput');
 const searchButton = document.querySelector('#searchButton');
 const clearSearchButton = document.querySelector('#clearSearchButton');
 const searchStatus = document.querySelector('#searchStatus');
+const imageModal = document.querySelector('#imageModal');
+const closeImageModal = document.querySelector('#closeImageModal');
+const imageModalImg = document.querySelector('#imageModalImg');
+const imageModalMeta = document.querySelector('#imageModalMeta');
 
 async function bootstrap() {
     const config = await fetchJson('/api/config/frontend');
@@ -49,13 +54,16 @@ async function initMap(amapKey, securityJsCode) {
 }
 
 async function loadInitialData() {
-    const [mapEvents, latestNews] = await Promise.all([
+    const [mapEvents, latestNews, images] = await Promise.all([
         fetchJson('/api/events/map'),
-        fetchJson('/api/news/latest?limit=20')
+        fetchJson('/api/news/latest?limit=20'),
+        fetchJson('/api/images')
     ]);
     allEvents = Array.isArray(mapEvents) ? mapEvents : [];
+    imageAssets = Array.isArray(images) ? images : [];
     events = allEvents.slice();
     rebuildMapMarkers();
+    rebuildImageMarkers();
     renderNewsList(Array.isArray(latestNews) ? latestNews : []);
     updateEventCount();
 }
@@ -159,12 +167,48 @@ function rebuildMapMarkers() {
     groups.forEach((group, key) => addGroupMarker(key, group));
 }
 
+function rebuildImageMarkers() {
+    if (!map) {
+        return;
+    }
+    imageMarkers.forEach(marker => map.remove(marker));
+    imageMarkers.clear();
+    imageAssets.forEach(asset => addImageMarker(asset));
+}
+
+function addImageMarker(asset) {
+    if (!asset || asset.longitude == null || asset.latitude == null || !asset.thumbUrl) {
+        return;
+    }
+    const marker = new AMap.Marker({
+        position: [Number(asset.longitude), Number(asset.latitude)],
+        title: `Image ${asset.key}`,
+        content: imageMarkerHtml(asset),
+        offset: imageMarkerOffset(),
+        zIndex: 140
+    });
+    marker.on('click', () => openImageModal(asset));
+    map.add(marker);
+    imageMarkers.set(String(asset.key), marker);
+}
+
 function updateMarkerContents() {
     markers.forEach((marker, key) => {
         const group = groups.get(key);
         if (group) {
             marker.setContent(markerHtml(group));
             marker.setOffset(markerOffset());
+        }
+    });
+    updateImageMarkerContents();
+}
+
+function updateImageMarkerContents() {
+    imageMarkers.forEach((marker, key) => {
+        const asset = imageAssets.find(item => String(item.key) === String(key));
+        if (asset) {
+            marker.setContent(imageMarkerHtml(asset));
+            marker.setOffset(imageMarkerOffset());
         }
     });
 }
@@ -261,12 +305,37 @@ function markerHtml(group) {
     return `<div class="amap-event-marker" style="width:220px;min-width:220px;max-width:220px;"><div class="marker-head" style="display:flex;align-items:center;justify-content:space-between;gap:18px;width:100%;min-width:0;margin-bottom:4px;"><b style="display:block;flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;">${location}</b><em style="display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 7px;border-radius:999px;color:#050914;background:#ff4568;font-size:12px;font-style:normal;font-weight:800;">${group.events.length}</em></div><span>${title}</span></div>`;
 }
 
+function imageMarkerHtml(asset) {
+    return `<button type="button" class="map-image-marker" title="Image ${escapeHtml(asset.key)}" style="display:block;box-sizing:border-box;width:24px;height:24px;min-width:24px;min-height:24px;max-width:24px;max-height:24px;padding:1px;margin:0;border:1px solid rgba(46,242,165,.92);border-radius:5px;background:rgba(3,8,20,.86);box-shadow:0 0 0 1px rgba(3,8,20,.78),0 0 8px rgba(46,242,165,.42);cursor:pointer;overflow:hidden;appearance:none;-webkit-appearance:none;"><img src="${escapeHtml(asset.thumbUrl)}" alt="" style="display:block;width:100%;height:100%;border-radius:3px;object-fit:cover;"></button>`;
+}
+
+function openImageModal(asset) {
+    imageModalImg.src = asset.imageUrl;
+    imageModalImg.alt = `Image ${asset.key}`;
+    imageModalImg.style.width = 'auto';
+    imageModalImg.style.height = 'auto';
+    imageModalImg.style.maxWidth = '100%';
+    imageModalImg.style.maxHeight = '100%';
+    imageModalImg.style.objectFit = 'contain';
+    imageModalMeta.textContent = `key=${asset.key}  lat=${Number(asset.latitude).toFixed(6)}  lon=${Number(asset.longitude).toFixed(6)}`;
+    imageModal.classList.remove('hidden');
+}
+
+function closeImageViewer() {
+    imageModal.classList.add('hidden');
+    imageModalImg.removeAttribute('src');
+}
+
 function markerOffset() {
     return isCompactMarkerMode() ? new AMap.Pixel(-13, -13) : new AMap.Pixel(-12, -12);
 }
 
 function isCompactMarkerMode() {
     return map && map.getZoom() < COMPACT_MARKER_ZOOM;
+}
+
+function imageMarkerOffset() {
+    return new AMap.Pixel(-12, -12);
 }
 
 function markerPreviewHtml(group, index) {
@@ -476,6 +545,8 @@ function escapeHtml(value) {
 
 closeModal.addEventListener('click', () => modal.classList.add('hidden'));
 modal.querySelector('.modal-backdrop').addEventListener('click', () => modal.classList.add('hidden'));
+closeImageModal.addEventListener('click', closeImageViewer);
+imageModal.querySelector('.modal-backdrop').addEventListener('click', closeImageViewer);
 searchForm.addEventListener('submit', handleSearch);
 clearSearchButton.addEventListener('click', clearSearch);
 

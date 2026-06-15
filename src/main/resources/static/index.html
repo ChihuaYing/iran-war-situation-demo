@@ -66,7 +66,7 @@
 <div id="detailModal" class="modal hidden">
     <div class="modal-backdrop"></div>
     <div class="modal-card">
-        <button id="closeModal" class="modal-close">×</button>
+        <button id="closeModal" class="modal-close" aria-label="关闭">&times;</button>
         <h2 id="detailTitle">新闻标题</h2>
         <div class="detail-meta">
             <span id="detailSource">Source</span>
@@ -77,6 +77,17 @@
         <div class="entity-box">
             <h3>涉及实体</h3>
             <div id="detailEntities" class="entity-tags"></div>
+        </div>
+    </div>
+</div>
+
+<div id="imageModal" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card image-modal-card">
+        <button id="closeImageModal" class="modal-close" aria-label="关闭">&times;</button>
+        <div id="imageModalMeta" class="image-modal-meta"></div>
+        <div class="image-modal-frame">
+            <img id="imageModalImg" class="image-modal-img" alt="" />
         </div>
     </div>
 </div>

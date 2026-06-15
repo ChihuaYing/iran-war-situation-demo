@@ -4,6 +4,7 @@ import cn.edu.tsinghua.iginx.exception.SessionException;
 import cn.edu.tsinghua.iginx.session.Session;
 import cn.edu.tsinghua.iginx.session.SessionExecuteSqlResult;
 import cn.storage.kg.config.AppProperties;
+import cn.storage.kg.model.ImageAsset;
 import cn.storage.kg.model.NewsEvent;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
+import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -81,6 +83,41 @@ public class IginxDao {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    public List<ImageAsset> findImageAssets() {
+        SessionExecuteSqlResult result = executeSql("select latitude, longitude from sys.image;");
+        List<ImageAsset> assets = new ArrayList<ImageAsset>();
+        if (result.getKeys() == null || result.getValues() == null) {
+            return assets;
+        }
+        for (int i = 0; i < result.getKeys().length && i < result.getValues().size(); i++) {
+            List<Object> row = result.getValues().get(i);
+            if (row == null || row.size() < 2) {
+                continue;
+            }
+            Double latitude = asDouble(row.get(0));
+            Double longitude = asDouble(row.get(1));
+            if (latitude == null || longitude == null) {
+                continue;
+            }
+            ImageAsset asset = new ImageAsset();
+            asset.setKey(result.getKeys()[i]);
+            asset.setLatitude(latitude);
+            asset.setLongitude(longitude);
+            asset.setThumbUrl("/api/images/" + result.getKeys()[i] + "/thumb");
+            asset.setImageUrl("/api/images/" + result.getKeys()[i] + "/content");
+            assets.add(asset);
+        }
+        return assets;
+    }
+
+    public Optional<byte[]> findImageContent(long key) {
+        return findImageBinary(key, "img");
+    }
+
+    public Optional<byte[]> findImageThumb(long key) {
+        return findImageBinary(key, "thumb");
     }
 
     private void writeToIginx(NewsEvent event) {
@@ -154,6 +191,23 @@ public class IginxDao {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to map IGinX result", e);
         }
+    }
+
+    private Optional<byte[]> findImageBinary(long key, String column) {
+        SessionExecuteSqlResult result = executeSql("select " + column + " from sys.image where key = " + key + ";");
+        if (result.getValues() == null || result.getValues().isEmpty()) {
+            return Optional.empty();
+        }
+        for (List<Object> row : result.getValues()) {
+            if (row == null || row.isEmpty()) {
+                continue;
+            }
+            byte[] bytes = asBytes(row.get(0));
+            if (bytes != null) {
+                return Optional.of(bytes);
+            }
+        }
+        return Optional.empty();
     }
 
     public SessionExecuteSqlResult executeSql(String sql) {
@@ -237,5 +291,18 @@ public class IginxDao {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private byte[] asBytes(Object value) {
+        if (value instanceof byte[]) {
+            return (byte[]) value;
+        }
+        if (value instanceof ByteBuffer) {
+            ByteBuffer duplicate = ((ByteBuffer) value).duplicate();
+            byte[] bytes = new byte[duplicate.remaining()];
+            duplicate.get(bytes);
+            return bytes;
+        }
+        return null;
     }
 }
