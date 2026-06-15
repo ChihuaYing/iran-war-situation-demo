@@ -1,0 +1,71 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: iran-war-situation-demo
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+app:
+  collector:
+    enabled: true
+    fixed-delay-ms: 30000
+    worker-threads: 4
+    keywords:
+      - 伊朗
+      - 以色列
+      - 德黑兰
+      - 内塔尼亚胡
+      - 哈梅内伊
+      - 革命卫队
+      - 伊斯兰革命卫队
+      - 导弹
+      - 无人机
+      - 空袭
+      - 袭击
+      - 打击
+      - 爆炸
+      - 核设施
+      - 核计划
+      - 冲突
+      - 战争
+      - 军事
+      - Iran
+      - Israel
+      - Tehran
+      - Khamenei
+      - Netanyahu
+      - IRGC
+      - Missile
+      - Strike
+      - Attack
+      - Drone
+      - Nuclear
+      - Explosion
+      - Conflict
+      - Military
+    rss-sources:
+      - name: 中国新闻网-国际
+        url: https://www.chinanews.com.cn/rss/world.xml
+  iginx:
+    host: ${IGINX_HOST:}
+    port: ${IGINX_PORT:}
+    username: ${IGINX_USERNAME:}
+    password: ${IGINX_PASSWORD:}
+    news-path-prefix: sys.news
+  neo4j:
+    uri: ${NEO4J_URI:}
+    username: ${NEO4J_USERNAME:}
+    password: ${NEO4J_PASSWORD:}
+  llm:
+    enabled: true
+    base-url: ${LLM_BASE_URL:}
+    api-key: ${LLM_API_KEY:}
+    model: ${LLM_MODEL:}
+    timeout-seconds: 30
+  amap:
+    web-api-key: ${AMAP_WEB_API_KEY:}
+    js-api-key: ${AMAP_JS_API_KEY:}
+    security-js-code: ${AMAP_SECURITY_JS_CODE:}
