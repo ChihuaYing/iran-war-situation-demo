@@ -3,3 +3,4 @@ dist/
 .vscode/
 target/
 packages/
+src/main/resources/application.yml

@@ -49,32 +49,23 @@ app:
     rss-sources:
       - name: 中国新闻网-国际
         url: https://www.chinanews.com.cn/rss/world.xml
-
-#      - name: RSSHub-环球网-国际
-#        url: https://rsshub.rssforever.com/huanqiu/news/world?filter=伊朗|以色列|中东|真主党|胡塞|加沙|德黑兰|黎巴嫩
-#      - name: RSSHub-参考消息-世界
-#        url: https://rsshub.rssforever.com/cankaoxiaoxi/news/world_news?filter=伊朗|以色列|中东|战争|空袭|导弹|核设施
-#      - name: RSSHub-观察者网-头条
-#        url: https://rsshub.rssforever.com/guancha/headline?filter=伊朗|以色列|中东|内塔尼亚胡|佩泽希齐扬|哈马斯
-#      - name: RSSHub-新浪军事
-#        url: https://rsshub.rssforever.com/sina/milnews?filter=伊朗|以色列|中东|防空|战机|导弹
   iginx:
-    host: 127.0.0.1
-    port: 6888
-    username: root
-    password: root
+    host: ${IGINX_HOST:}
+    port: ${IGINX_PORT:}
+    username: ${IGINX_USERNAME:}
+    password: ${IGINX_PASSWORD:}
     news-path-prefix: sys.news
   neo4j:
-    uri: bolt://127.0.0.1:7687
-    username: neo4j
-    password: password
+    uri: ${NEO4J_URI:}
+    username: ${NEO4J_USERNAME:}
+    password: ${NEO4J_PASSWORD:}
   llm:
     enabled: true
-    base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    base-url: ${LLM_BASE_URL:}
     api-key: ${LLM_API_KEY:}
-    model: ${LLM_MODEL:qwen3.6-35b-a3b}
+    model: ${LLM_MODEL:}
     timeout-seconds: 30
   amap:
-    web-api-key: 
-    js-api-key: 
-    security-js-code: 
+    web-api-key: ${AMAP_WEB_API_KEY:}
+    js-api-key: ${AMAP_JS_API_KEY:}
+    security-js-code: ${AMAP_SECURITY_JS_CODE:}
